@@ -90,7 +90,7 @@ X-Custom-Header: MyValue
 
 ## Contributing
 
-Tapr is an open-source project built for developers by developers. Whether you want to debug APIs faster, improve CLI tooling, or just play with Go networking, your contributions are **welcome and celebrated**. Check out [CONTRIBUTING.MD](CONTRIBUTING.MD) for the complete contribution guide.
+Tapr is an open-source project built for developers by developers. Whether you want to debug APIs faster, improve CLI tooling, or just play with Go networking, your contributions are **welcome and celebrated**. Check out [CONTRIBUTING.MD](CONTRIBUTING.md) for the complete contribution guide.
 
 
 
