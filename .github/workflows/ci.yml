@@ -1,1 +1,50 @@
+name: CI Checks
 
+# Run on push to main/develop and on pull requests targeting them
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Set up Go
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.21
+
+    # Install dependencies
+    - name: Install dependencies
+      run: go mod tidy
+
+    # Run lint / formatting check
+    - name: Run go fmt
+      run: |
+        fmt_output=$(gofmt -l .)
+        if [ -n "$fmt_output" ]; then
+          echo "Files must be formatted with gofmt:"
+          echo "$fmt_output"
+          exit 1
+        fi
+
+    # Run unit tests
+    - name: Run tests
+      run: go test ./... -v
+
+    # Build verification
+    - name: Build Tapr
+      run: go build -o tapr ./...
