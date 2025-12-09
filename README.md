@@ -90,7 +90,7 @@ X-Custom-Header: MyValue
 
 ## Contributing
 
-Tapr is an open-source project built for developers by developers. Whether you want to debug APIs faster, improve CLI tooling, or just play with Go networking, your contributions are **welcome and celebrated**. Check out [CONTRIBUTING.MD](Contributing.MD) for the complete contribution guide.
+Tapr is an open-source project built for developers by developers. Whether you want to debug APIs faster, improve CLI tooling, or just play with Go networking, your contributions are **welcome and celebrated**. Check out [CONTRIBUTING.MD](CONTRIBUTING.MD) for the complete contribution guide.
 
 
 
@@ -114,7 +114,7 @@ Please check CONTRIBUTING.md
 ## Code of Conduct
 
 This project adheres to a Code of Conduct
-. By participating, you agree to follow its guidelines.
+. By participating, you agree to follow its [guidelines](https://github.com/symtalha14/tapr/blob/main/CONTRIBUTING.md#community-standards--code-of-conduct).
 
 
 
