@@ -1,50 +1,108 @@
-name: CI Checks
+name: Verifying Changes
 
-# Run on push to main/develop and on pull requests targeting them
 on:
+  # Run on pushes to main branch
   push:
-    branches:
-      - main
-      - develop
+    branches: [main]
+  
+  # Run on all pull requests targeting main
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main]
+  
+  # Allow manual trigger from Actions tab
+  workflow_dispatch:
 
 jobs:
-  build-and-test:
-    name: Build and Test
+  # Job 1: Linting and code quality checks
+  lint:
+    name: Lint and Format
     runs-on: ubuntu-latest
-
     steps:
-    # Checkout repository
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+      
+      - name: Check code formatting
+        run: |
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "❌ Code is not formatted. Please run: gofmt -w ."
+            echo "Files that need formatting:"
+            gofmt -l .
+            exit 1
+          fi
+          echo "✅ Code is properly formatted"
+      
+      - name: Run go vet
+        run: |
+          echo "Running go vet..."
+          go vet ./...
+      
+      - name: Install staticcheck
+        run: go install honnef.co/go/tools/cmd/staticcheck@latest
+      
+      - name: Run staticcheck
+        run: |
+          echo "Running staticcheck..."
+          staticcheck ./...
+      
+      - name: Install golint
+        run: go install golang.org/x/lint/golint@latest
+      
+      - name: Run golint
+        run: |
+          echo "Running golint..."
+          golint ./...
 
-    # Set up Go
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: 1.21
+  # Job 2: Run tests
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+      
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.txt
+          flags: unittests
+          name: codecov-tapr
+          
 
-    # Install dependencies
-    - name: Install dependencies
-      run: go mod tidy
-
-    # Run lint / formatting check
-    - name: Run go fmt
-      run: |
-        fmt_output=$(gofmt -l .)
-        if [ -n "$fmt_output" ]; then
-          echo "Files must be formatted with gofmt:"
-          echo "$fmt_output"
-          exit 1
-        fi
-
-    # Run unit tests
-    - name: Run tests
-      run: go test ./... -v
-
-    # Build verification
-    - name: Build Tapr
-      run: go build -o tapr ./...
+  # Job 3: Build binary
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+      
+      - name: Build binary
+        run: |
+          echo "Building tapr..."
+          go build -v -o tapr ./cmd/tapr/
+      
+      - name: Test binary
+        run: |
+          echo "Testing binary..."
+          ./tapr --help
+          ./tapr --version || echo "Version command not implemented yet"

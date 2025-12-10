@@ -1,0 +1,38 @@
+# Sample batch configuration for Tapr
+
+# Global timeout (optional, default: 10s)
+timeout: 10s
+
+# Concurrency level (optional, default: 5)
+concurrency: 3
+
+endpoints:
+  - name: "HTTPBin GET"
+    url: https://httpbin.org/get
+    method: GET
+    expected_status: 200
+
+  - name: "HTTPBin Delay"
+    url: https://httpbin.org/delay/1
+    method: GET
+    expected_status: 200
+
+  - name: "HTTPBin POST"
+    url: https://httpbin.org/post
+    method: POST
+    expected_status: 200
+    headers:
+      Content-Type: application/json
+
+  - name: "HTTPBin Status 404"
+    url: https://httpbin.org/status/404
+    method: GET
+    expected_status: 404
+  
+  - name: "MG Gadgets"
+    url: "https://mggadgets.in"
+    method: "GET"
+    expected_status: 200
+
+
+
