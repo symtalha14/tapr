@@ -9,7 +9,7 @@
 ************************************************************************************************************************
 ```
 
-[![Tests](https://github.com/symtalha14/tapr/actions/workflows/quality.yml/badge.svg)](https://github.com/symtalha14/tapr/actions/workflows/ci.yml)
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/symtalha14/tapr)](https://goreportcard.com/report/github.com/symtalha14/tapr)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
