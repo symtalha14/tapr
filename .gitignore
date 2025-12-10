@@ -1,5 +1,5 @@
 # Binaries
-tapr
+/tapr
 tapr.exe
 *.exe
 *.dll
