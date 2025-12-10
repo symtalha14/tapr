@@ -3,7 +3,6 @@
 package request
 
 import (
-	"io"
 	"net/http"
 	"time"
 )
@@ -124,19 +123,4 @@ func makeRequest(client *http.Client, url, method string, headers map[string]str
 		Protocol:   resp.Proto,
 		Error:      nil,
 	}
-}
-
-// createRequest creates an HTTP request with the given parameters.
-func createRequest(method, url string, body io.Reader, headers map[string]string) (*http.Request, error) {
-	req, err := http.NewRequest(method, url, body)
-	if err != nil {
-		return nil, err
-	}
-
-	// Add headers
-	for key, value := range headers {
-		req.Header.Set(key, value)
-	}
-
-	return req, nil
 }
