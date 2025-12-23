@@ -20,6 +20,10 @@
 
 **Tapr** is a fast, lightweight CLI tool for API health checking, performance monitoring, and debugging. Built in Go for speed and reliability, it's perfect for developers, DevOps engineers, and SREs who need quick insights into API behavior.
 
+
+<video src="https://github.com/user-attachments/assets/3dbd81b5-e5f8-40ca-91f4-4f1e1603360e" width="450" autoplay="true"></video>
+
+
 **Why Tapr?**
 - 🚀 **Fast**: Single binary, zero dependencies, instant startup
 - 🎯 **Focused**: Does one thing well - API health monitoring
