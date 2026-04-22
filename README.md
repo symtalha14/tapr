@@ -81,18 +81,7 @@ Tapr measures and reports:
 
 Pre-built binaries are available in [Releases](https://github.com/symtalha14/tapr/releases).
 ```bash
-# Linux
-curl -L https://github.com/symtalha14/tapr/releases/latest/download/tapr-linux-amd64 -o tapr
-chmod +x tapr
-sudo mv tapr /usr/local/bin/
-
-# macOS
-curl -L https://github.com/symtalha14/tapr/releases/latest/download/tapr-darwin-amd64 -o tapr
-chmod +x tapr
-sudo mv tapr /usr/local/bin/
-
-# Windows
-# Download tapr-windows-amd64.exe from releases
+curl -sSL https://raw.githubusercontent.com/symtalha14/tapr/main/install.sh | bash
 ```
 
 ### Option 2: Install with Go
