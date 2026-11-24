@@ -1,3 +1,9 @@
+---
+name: Feature request
+about: Suggest an idea or improvement for Tapr
+labels: enhancement
+---
+
 # Feature Request
 
 ## Describe the Feature

@@ -28,7 +28,7 @@ const logo = `
 ********************************************************************	
    _	                   
   | |_ __ _ _ __  _ __ 
-  | __/ _\ | \_ \| \__|    V0.1.0
+  | __/ _\ | \_ \| \__|    %s
   | || (_| | |_) | |   
   \___\__,_| .__/|_|   
            |_|
@@ -73,7 +73,7 @@ const (
 var rootCmd = &cobra.Command{
 	Use:   "tapr [url]",
 	Short: "A fast API health checker",
-	Long: output.Green(logo) + `
+	Long: output.Green(fmt.Sprintf(logo, Version)) + `
  ⚡ Fast API Health Checker
 
 A tiny CLI tool to ping your API endpoints, measure latency, 

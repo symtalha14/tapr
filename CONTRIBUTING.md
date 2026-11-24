@@ -18,47 +18,47 @@ No contribution is too small- even fixing a typo counts!
 
 ## How to Get Started
 
-1. **Fork the repository**  
-2. **Clone your fork**  
+**Prerequisites:** Go 1.21+ and git.
 
-```bash
-git clone https://github.com/yourusername/tapr.git
-cd tapr```
+1. **Find an issue.** Look for [`good first issue`](https://github.com/symtalha14/tapr/labels/good%20first%20issue) or [`help wanted`](https://github.com/symtalha14/tapr/labels/help%20wanted). Comment on it so others know you're working on it.
+2. **Fork and clone**
 
-```
+   ```bash
+   git clone https://github.com/<your-username>/tapr.git
+   cd tapr
+   ```
 
-## Steps
+3. **Create a branch**
 
-Follow these simple steps to make your first contribution to **Tapr**. Whether it is your first time contributing to any OSS (Open Source Software) or you are a frequent contributor, this guide will help you start.
+   ```bash
+   git checkout -b fix/short-description
+   ```
 
-### 1. Create a branch for your feature or fix
+4. **Build and run locally**
 
-```git checkout -b feature/my-feature```
+   ```bash
+   go build -o tapr ./cmd/tapr/
+   ./tapr https://httpbin.org/get
+   ./tapr batch sample/endpoints.yaml
+   ```
 
-### 2. Create a new branch for your changes (in your local):
+5. **Run the checks** (the same ones CI runs)
 
-```git checkout -b feature/short-description```
+   ```bash
+   gofmt -l .            # should print nothing; fix with: gofmt -w .
+   go vet ./...
+   go test -race ./...
+   ```
 
-### 3. Implement your changes following the coding standards. 
-Ensure your code is properly documented and tested.
+   Prefer `net/http/httptest` in tests over hitting real endpoints.
 
-### 4. Commit your changes with a clear, descriptive message:
+6. **Commit** using [Conventional Commits](https://www.conventionalcommits.org/) prefixes (`feat:`, `fix:`, `docs:`, `test:`, `chore:`):
 
-```
-git add .
-git commit -m "feat: added a feat to do ABC"
-```
+   ```bash
+   git commit -m "fix: clamp box padding for long URLs"
+   ```
 
-### 5. Push the branch to your fork:
-
-```
-git push origin feature/short-description
-```
-
-### 6. Raise a Pull Request
-Open a Pull Request against the main repository. Include a concise description of your changes and any relevant context.
-
-
+7. **Push and open a Pull Request** against `main`. Link the issue (`Fixes #123`) and fill in the PR template.
 
 ## Coding Standards
 
@@ -71,13 +71,13 @@ Open a Pull Request against the main repository. Include a concise description o
 
 ## Issue Reporting
 
-- When submitting a bug report or feature request:
+When submitting a bug report or feature request (use the issue templates):
 - Provide steps to reproduce (if applicable)
 - Clearly describe expected vs actual behavior
 - Include environment details (OS, Go version, Tapr version)
 
- ## Review Process
- All contributions are reviewed by the maintainers. Feedback may be provided, and revisions requested, to ensure consistency, quality, and maintainability.
+## Review Process
+All contributions are reviewed by the maintainers. Feedback may be provided, and revisions requested, to ensure consistency, quality, and maintainability.
 
 
 ---
