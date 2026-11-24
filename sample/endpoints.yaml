@@ -28,11 +28,3 @@ endpoints:
     url: https://httpbin.org/status/404
     method: GET
     expected_status: 404
-  
-  - name: "MG Gadgets"
-    url: "https://mggadgets.in"
-    method: "GET"
-    expected_status: 200
-
-
-

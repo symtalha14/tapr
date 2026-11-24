@@ -1,3 +1,9 @@
+---
+name: Bug report
+about: Something in Tapr is broken or behaves unexpectedly
+labels: bug
+---
+
 # Bug Report
 
 ## Describe the bug
