@@ -10,6 +10,8 @@
 ```
 
 
+[![CI](https://github.com/symtalha14/tapr/actions/workflows/ci.yml/badge.svg)](https://github.com/symtalha14/tapr/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/symtalha14/tapr)](https://github.com/symtalha14/tapr/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/symtalha14/tapr)](https://goreportcard.com/report/github.com/symtalha14/tapr)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
@@ -112,9 +114,11 @@ tapr --help
 tapr https://api.example.com/health
 
 # Output:
-# ✓ 200 OK
-# Latency: 142ms
-# Size: 312 bytes
+# ✓ Success
+#   Status:   200 OK
+#   Latency:  142ms
+#   Protocol: HTTP/2.0
+#   Size:     312 bytes
 ```
 
 ### With Custom Headers
@@ -227,12 +231,12 @@ tapr batch endpoints.yml
 ENDPOINT          METHOD  STATUS  LATENCY  SIZE    RESULT
 Auth Service      GET     200     142ms    1.2KB   ✓
 User Service      GET     200     234ms    892B    ✓
-Payment Gateway   POST    200     189ms    3.4KB   ✓
+Payment Gateway   GET     200     189ms    3.4KB   ✓
 
 📊 Summary
    Total:        3 endpoints
    Successful:   3 (100%)
-   Failed:       0 (0%)
+   Failed:       0
    Avg Latency:  188ms
    Total Time:   1.2s
 
@@ -349,6 +353,8 @@ Available on all commands:
 | `--quiet` | `-q` | bool | `false` | Only show errors (for CI/CD) |
 | `--silent` | | bool | `false` | No output at all, only exit code |
 | `--output` | `-o` | string | `pretty` | Output format: `pretty`, `json`, `csv` |
+
+> ⚠️ **Known bug:** the request flags (`-t`, `-X`, `-H`, `--headers`, `-v`, `-r`) currently only work with `tapr <url>`, not with `watch` or `trace`. Fix tracked in [#4](https://github.com/symtalha14/tapr/issues/4), a good first issue if you want to help.
 
 ### Commands
 
@@ -644,7 +650,7 @@ tapr watch https://api.com --count 100
 ## Roadmap
 
 ### v0.2.0 (Planned)
-- [ ] Request body support (POST/PUT data)
+- [ ] Request body support (POST/PUT data) ([#2](https://github.com/symtalha14/tapr/issues/2))
 - [ ] Response body display and comparison
 - [ ] Save results to file
 - [ ] HTML report generation
@@ -680,25 +686,9 @@ Tapr is built for developers by developers. Contributions are **welcome and cele
 
 ### Quick Start for Contributors
 ```bash
-# Fork and clone
-git clone https://github.com/YOUR_USERNAME/tapr.git
-cd tapr
-
-# Create a branch
-git checkout -b feature/your-feature
-
-# Make changes and test
-go test ./...
+git clone https://github.com/YOUR_USERNAME/tapr.git && cd tapr
 go build -o tapr ./cmd/tapr/
-
-# Format code
-gofmt -w .
-
-# Commit and push
-git commit -m "Add your feature"
-git push origin feature/your-feature
-
-# Open a Pull Request on GitHub
+go test -race ./...
 ```
 
 **See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.**
@@ -707,32 +697,12 @@ git push origin feature/your-feature
 
 ## Community
 
-- 💬 [Discussions](https://github.com/symtalha14/tapr/discussions) - Ask questions, share ideas
 - 🐛 [Issues](https://github.com/symtalha14/tapr/issues) - Report bugs, request features
 - 📢 [Twitter](https://twitter.com/symtalha14) - Follow for updates
 
 ## License
 
 Tapr is released under the [Apache License 2.0](LICENSE).
-```
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
-
-   Copyright 2025 Syed Muhammad Talha
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-```
 
 ## Acknowledgments
 
