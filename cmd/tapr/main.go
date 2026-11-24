@@ -46,6 +46,7 @@ var (
 	inlineHeaders    []string      // Individual headers from command line
 	verbose          bool          // Enable verbose output
 	retries          int           // Number of retry attempts on failure
+	expectedStatus   int           // Expected status for a single health check
 	watchInterval    time.Duration // Time between requests in watch mode
 	watchCount       int           // Number of requests (0 = infinite)
 	batchConcurrency int           // Number of concurrent requests in batch mode
@@ -244,6 +245,13 @@ func init() {
 		"Number of retry attempts on failure",
 	)
 
+	rootCmd.Flags().IntVar(
+		&expectedStatus,
+		"expect",
+		0,
+		"Expected HTTP status code (default: any 2xx or 3xx)",
+	)
+
 	// Add batch command
 	rootCmd.AddCommand(batchCmd)
 
@@ -314,6 +322,11 @@ func runPing(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
+	if cmd.Flags().Changed("expect") && (expectedStatus < 100 || expectedStatus > 599) {
+		fmt.Fprintln(os.Stderr, output.Red("Error: --expect must be an HTTP status code from 100 to 599"))
+		os.Exit(ExitError)
+	}
+
 	// Load headers from file if specified
 	var fileHeaders map[string]string
 	if headersFile != "" {
@@ -346,10 +359,11 @@ func runPing(cmd *cobra.Command, args []string) {
 
 	// Configure and execute the ping
 	opts := request.PingOptions{
-		Method:  strings.ToUpper(method),
-		Timeout: timeout,
-		Retries: retries,
-		Headers: headers,
+		Method:         strings.ToUpper(method),
+		Timeout:        timeout,
+		Retries:        retries,
+		Headers:        headers,
+		ExpectedStatus: expectedStatus,
 	}
 
 	result := request.Ping(url, opts)
@@ -358,6 +372,17 @@ func runPing(cmd *cobra.Command, args []string) {
 	if result.Error != nil {
 		printError(url, result.Error)
 		os.Exit(1)
+	}
+
+	statusMatches := result.StatusCode >= 200 && result.StatusCode < 400
+	expected := "2xx or 3xx"
+	if expectedStatus != 0 {
+		statusMatches = result.StatusCode == expectedStatus
+		expected = fmt.Sprintf("%d", expectedStatus)
+	}
+	if !statusMatches {
+		printError(url, fmt.Errorf("unexpected HTTP status %s (expected %s)", result.Status, expected))
+		os.Exit(ExitFailure)
 	}
 
 	// Print successful result

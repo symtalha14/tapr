@@ -21,15 +21,17 @@ type Result struct {
 
 // PingOptions contains configuration options for making HTTP requests.
 type PingOptions struct {
-	Method  string            // HTTP method (GET, POST, PUT, etc.)
-	Timeout time.Duration     // Maximum time to wait for response
-	Retries int               // Number of retry attempts on failure
-	Headers map[string]string // HTTP headers to include in the request
+	Method         string            // HTTP method (GET, POST, PUT, etc.)
+	Timeout        time.Duration     // Maximum time to wait for response
+	Retries        int               // Number of retry attempts on failure
+	Headers        map[string]string // HTTP headers to include in the request
+	ExpectedStatus int               // Optional expected status; a match is never retried
 }
 
 // Ping makes an HTTP request to the specified URL and returns detailed
-// timing and response information. It will retry the request if it fails,
-// up to the number of times specified in options.Retries.
+// timing and response information. It retries transport errors and HTTP 429
+// or 5xx responses, up to opts.Retries times. A response matching an explicit
+// opts.ExpectedStatus is returned immediately.
 //
 // Example:
 //
@@ -56,8 +58,11 @@ func Ping(url string, opts PingOptions) Result {
 	for attempt := 0; attempt < maxAttempts; attempt++ {
 		lastResult = makeRequest(client, url, opts.Method, opts.Headers)
 
-		// If successful, return immediately
-		if lastResult.Error == nil {
+		// An explicitly expected status takes precedence over retrying it.
+		expectedStatus := opts.ExpectedStatus != 0 && lastResult.StatusCode == opts.ExpectedStatus
+		retryableStatus := lastResult.StatusCode == http.StatusTooManyRequests ||
+			(lastResult.StatusCode >= 500 && lastResult.StatusCode < 600)
+		if lastResult.Error == nil && (expectedStatus || !retryableStatus) {
 			return lastResult
 		}
 
@@ -69,7 +74,7 @@ func Ping(url string, opts PingOptions) Result {
 		}
 	}
 
-	// Return the last result (which contains the error)
+	// Return the final HTTP response or transport error.
 	return lastResult
 }
 

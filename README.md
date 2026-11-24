@@ -362,11 +362,20 @@ Available on all commands:
 
 Test a single endpoint.
 
+HTTP 2xx and 3xx responses succeed by default. Other statuses print a failure
+and exit with code 1. Use `--expect CODE` to require a specific HTTP status,
+including an expected error response such as `--expect 404`.
+
+`--retries` retries transport errors, HTTP 429 and HTTP 5xx responses with
+exponential backoff. An explicitly expected status is not retried; other
+HTTP 4xx responses fail immediately.
+
 **Examples:**
 ```bash
 tapr https://api.example.com
 tapr https://api.example.com -X POST -H "Auth: token"
 tapr https://api.example.com --timeout 30s --retries 3
+tapr https://api.example.com/missing --expect 404
 ```
 
 ---
