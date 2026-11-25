@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -17,6 +18,9 @@ import (
 
 func TestPingHTTPStatus(t *testing.T) {
 	binary := filepath.Join(t.TempDir(), "tapr")
+	if runtime.GOOS == "windows" {
+		binary += ".exe"
+	}
 	if output, err := exec.Command("go", "build", "-o", binary, ".").CombinedOutput(); err != nil {
 		t.Fatalf("build tapr: %v\n%s", err, output)
 	}
