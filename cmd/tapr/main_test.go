@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -135,4 +136,59 @@ func TestBoxLine(t *testing.T) {
 			t.Errorf("boxLine(%q, 3) = %q, want %q", tc.input, got, tc.want)
 		}
 	}
+}
+
+func TestRequestFlags(t *testing.T) {
+	headerFile := filepath.Join(t.TempDir(), "headers.yaml")
+	if err := os.WriteFile(headerFile, []byte("X-From-File: from-yaml\nX-Override: from-yaml\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	for _, command := range []string{"watch", "trace"} {
+		t.Run(command, func(t *testing.T) {
+			var attempts atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" || r.Header.Get("X-From-File") != "from-yaml" || r.Header.Get("X-Override") != "inline" {
+					t.Errorf("unexpected request: %s, headers %v", r.Method, r.Header)
+				}
+				if attempts.Add(1) == 1 {
+					panic(http.ErrAbortHandler) // Force a transport error on the first attempt.
+				}
+			}))
+			defer server.Close()
+
+			args := []string{"-test.run=^TestCLIProcess$", "--", command, server.URL, "-X", "POST",
+				"--headers", headerFile, "-H", "X-Override: inline", "-t", "3s", "-v", "-r", "1"}
+			wantAttempts := int32(2)
+			if command == "watch" {
+				args = append(args, "--count", "2", "--interval", "10ms")
+				wantAttempts++ // Two checks, plus the first check's retry.
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+			defer cancel()
+			process := exec.CommandContext(ctx, os.Args[0], args...)
+			process.Env = append(os.Environ(), "TAPR_TEST_CLI=1")
+			output, err := process.CombinedOutput()
+			if err != nil {
+				t.Fatalf("%v\n%s", err, output)
+			}
+			if attempts.Load() != wantAttempts || !strings.Contains(string(output), "Timeout: 3s") {
+				t.Errorf("got %d requests, want %d and verbose timeout\n%s", attempts.Load(), wantAttempts, output)
+			}
+		})
+	}
+}
+
+// Exercise the CLI in its own process because its error paths call os.Exit.
+func TestCLIProcess(t *testing.T) {
+	if os.Getenv("TAPR_TEST_CLI") != "1" {
+		return
+	}
+	for i, arg := range os.Args {
+		if arg == "--" {
+			rootCmd.SetArgs(os.Args[i+1:])
+			main()
+			return
+		}
+	}
+	t.Fatal("missing CLI arguments")
 }
