@@ -327,6 +327,12 @@ func runPing(cmd *cobra.Command, args []string) {
 		os.Exit(ExitError)
 	}
 
+	body, err := loadRequestBody(requestData)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, output.Red(fmt.Sprintf("Error loading request body: %v", err)))
+		os.Exit(ExitError)
+	}
+
 	// Load headers from file if specified
 	var fileHeaders map[string]string
 	if headersFile != "" {
@@ -363,6 +369,7 @@ func runPing(cmd *cobra.Command, args []string) {
 		Timeout:        timeout,
 		Retries:        retries,
 		Headers:        headers,
+		Body:           body,
 		ExpectedStatus: expectedStatus,
 	}
 

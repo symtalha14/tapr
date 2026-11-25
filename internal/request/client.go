@@ -3,6 +3,8 @@
 package request
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"time"
 )
@@ -25,6 +27,7 @@ type PingOptions struct {
 	Timeout        time.Duration     // Maximum time to wait for response
 	Retries        int               // Number of retry attempts on failure
 	Headers        map[string]string // HTTP headers to include in the request
+	Body           []byte            // Optional request body
 	ExpectedStatus int               // Optional expected status; a match is never retried
 }
 
@@ -56,7 +59,7 @@ func Ping(url string, opts PingOptions) Result {
 
 	// Attempt the request, with retries if needed
 	for attempt := 0; attempt < maxAttempts; attempt++ {
-		lastResult = makeRequest(client, url, opts.Method, opts.Headers)
+		lastResult = makeRequest(client, url, opts.Method, opts.Headers, opts.Body)
 
 		// An explicitly expected status takes precedence over retrying it.
 		expectedStatus := opts.ExpectedStatus != 0 && lastResult.StatusCode == opts.ExpectedStatus
@@ -80,12 +83,12 @@ func Ping(url string, opts PingOptions) Result {
 
 // makeRequest performs a single HTTP request and measures its timing.
 // This is an internal helper function used by Ping.
-func makeRequest(client *http.Client, url, method string, headers map[string]string) Result {
+func makeRequest(client *http.Client, url, method string, headers map[string]string, body []byte) Result {
 	// Record the start time for latency measurement
 	start := time.Now()
 
 	// Create the HTTP request
-	req, err := http.NewRequest(method, url, nil)
+	req, err := http.NewRequest(method, url, bytes.NewReader(body))
 	if err != nil {
 		return Result{
 			URL:     url,
@@ -97,6 +100,9 @@ func makeRequest(client *http.Client, url, method string, headers map[string]str
 	// Add headers to the request
 	for key, value := range headers {
 		req.Header.Set(key, value)
+	}
+	if _, exists := req.Header["Content-Type"]; !exists && json.Valid(body) {
+		req.Header.Set("Content-Type", "application/json")
 	}
 
 	// Execute the request
