@@ -430,7 +430,7 @@ func runWatch(cmd *cobra.Command, args []string) {
 
 	// Print header
 	fmt.Printf("\n┌─────────────────────────────────────────────────────────────────────┐\n")
-	fmt.Printf("│ Watching: %s│\n", output.Blue(boxLine(url, 59)))
+	fmt.Printf("│ Watching: %s│\n", output.Blue(boxLine(url, 58)))
 	count := "infinite"
 	if watchCount > 0 {
 		count = fmt.Sprint(watchCount)
