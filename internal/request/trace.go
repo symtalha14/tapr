@@ -36,6 +36,17 @@ type TraceResult struct {
 // TraceRequest performs an HTTP request with detailed timing information.
 // It uses Go's httptrace package to capture timing at each phase.
 func TraceRequest(url, method string, opts PingOptions) TraceResult {
+	for attempt := 0; ; attempt++ {
+		result := traceOnce(url, method, opts)
+		if result.Error == nil || attempt >= opts.Retries {
+			return result
+		}
+		time.Sleep(time.Second << uint(attempt))
+	}
+}
+
+// Each attempt gets a fresh connection and its own timing measurements.
+func traceOnce(url, method string, opts PingOptions) TraceResult {
 	result := TraceResult{
 		URL: url,
 	}
