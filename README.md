@@ -355,7 +355,7 @@ Available on all commands:
 | `--silent` | | bool | `false` | No output at all, only exit code |
 | `--output` | `-o` | string | `pretty` | Output format: `pretty`, `json`, `csv` |
 
-> ⚠️ **Known bug:** the request flags (`-t`, `-X`, `-H`, `--headers`, `-v`, `-r`) currently only work with `tapr <url>`, not with `watch` or `trace`. Fix tracked in [#4](https://github.com/symtalha14/tapr/issues/4), a good first issue if you want to help.
+The request flags apply to single checks, `watch`, and `trace`. With `trace --retries`, the timeline shows the final attempt.
 
 ### Commands
 
