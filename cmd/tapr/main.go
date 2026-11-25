@@ -22,6 +22,11 @@ import (
 // Version
 var Version = "dev"
 
+// boxLine pads short fields and keeps longer values intact.
+func boxLine(text string, width int) string {
+	return fmt.Sprintf("%-*s", width, text)
+}
+
 // ASCII logo for the application
 const logo = `
 
@@ -425,13 +430,12 @@ func runWatch(cmd *cobra.Command, args []string) {
 
 	// Print header
 	fmt.Printf("\n┌─────────────────────────────────────────────────────────────────────┐\n")
-	fmt.Printf("│ Watching: %s%s│\n", output.Blue(url), strings.Repeat(" ", 70-len(url)-11))
-	fmt.Printf("│ Interval: %v, ", watchInterval)
+	fmt.Printf("│ Watching: %s│\n", output.Blue(boxLine(url, 59)))
+	count := "infinite"
 	if watchCount > 0 {
-		fmt.Printf("Count: %d%s│\n", watchCount, strings.Repeat(" ", 48-len(fmt.Sprintf("%d", watchCount))))
-	} else {
-		fmt.Printf("Count: infinite%s│\n", strings.Repeat(" ", 43))
+		count = fmt.Sprint(watchCount)
 	}
+	fmt.Printf("│%s│\n", boxLine(fmt.Sprintf(" Interval: %v, Count: %s", watchInterval, count), 69))
 	fmt.Printf("└─────────────────────────────────────────────────────────────────────┘\n")
 
 	// Initialize trackers
@@ -834,10 +838,8 @@ func runBatch(cmd *cobra.Command, args []string) {
 	// Print header (only in normal mode)
 	if !quiet && !silent && outputFormat == "pretty" {
 		fmt.Printf("\n┌─────────────────────────────────────────────────────────────────────┐\n")
-		fmt.Printf("│ Running batch: %d endpoints (concurrency: %d)%s│\n",
-			len(batchConfig.Endpoints),
-			batchConfig.Concurrency,
-			strings.Repeat(" ", 44-len(fmt.Sprintf("%d", len(batchConfig.Endpoints)))-len(fmt.Sprintf("%d", batchConfig.Concurrency))))
+		fmt.Printf("│%s│\n", boxLine(fmt.Sprintf(" Running batch: %d endpoints (concurrency: %d)",
+			len(batchConfig.Endpoints), batchConfig.Concurrency), 69))
 		fmt.Printf("└─────────────────────────────────────────────────────────────────────┘\n")
 
 		fmt.Println("Testing endpoints... ⚡")
@@ -1321,10 +1323,7 @@ func runTrace(cmd *cobra.Command, args []string) {
 
 	// Print header
 	fmt.Printf("\n┌─────────────────────────────────────────────────────────────────────┐\n")
-	fmt.Printf("│ %s Trace: %s%s│\n",
-		output.Blue("🔍"),
-		url,
-		strings.Repeat(" ", 57-len(url)))
+	fmt.Printf("│ %s Trace: %s│\n", output.Blue("🔍"), boxLine(url, 58))
 	fmt.Printf("└─────────────────────────────────────────────────────────────────────┘\n")
 
 	if verbose {
