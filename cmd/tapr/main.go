@@ -197,58 +197,9 @@ func init() {
 		"Number of requests (0 = infinite)",
 	)
 
-	// Timeout flag: -t or --timeout
-	rootCmd.Flags().DurationVarP(
-		&timeout,
-		"timeout",
-		"t",
-		10*time.Second,
-		"Maximum time to wait for response",
-	)
-
-	// Method flag: -X or --method
-	rootCmd.Flags().StringVarP(
-		&method,
-		"method",
-		"X",
-		"GET",
-		"HTTP method (GET, POST, PUT, PATCH, DELETE)",
-	)
-
-	// Headers file flag: --headers
-	rootCmd.Flags().StringVar(
-		&headersFile,
-		"headers",
-		"",
-		"Path to YAML file containing request headers",
-	)
-
-	// Inline header flag: -H or --header (repeatable)
-	rootCmd.Flags().StringSliceVarP(
-		&inlineHeaders,
-		"header",
-		"H",
-		[]string{},
-		"Add a header (format: 'Key: Value'), repeatable",
-	)
-
-	// Verbose flag: -v or --verbose
-	rootCmd.Flags().BoolVarP(
-		&verbose,
-		"verbose",
-		"v",
-		false,
-		"Show detailed request and response information",
-	)
-
-	// Retries flag: -r or --retries
-	rootCmd.Flags().IntVarP(
-		&retries,
-		"retries",
-		"r",
-		0,
-		"Number of retry attempts on failure",
-	)
+	for _, cmd := range []*cobra.Command{rootCmd, watchCmd, traceCmd} {
+		addRequestFlags(cmd)
+	}
 
 	rootCmd.Flags().IntVar(
 		&expectedStatus,
@@ -307,6 +258,16 @@ func init() {
 		"pretty",
 		"Output format: pretty, json, csv",
 	)
+}
+
+func addRequestFlags(cmd *cobra.Command) {
+	flags := cmd.Flags()
+	flags.DurationVarP(&timeout, "timeout", "t", 10*time.Second, "Maximum time to wait for response")
+	flags.StringVarP(&method, "method", "X", "GET", "HTTP method (GET, POST, PUT, PATCH, DELETE)")
+	flags.StringVar(&headersFile, "headers", "", "Path to YAML file containing request headers")
+	flags.StringSliceVarP(&inlineHeaders, "header", "H", []string{}, "Add a header (format: 'Key: Value'), repeatable")
+	flags.BoolVarP(&verbose, "verbose", "v", false, "Show detailed request and response information")
+	flags.IntVarP(&retries, "retries", "r", 0, "Number of retry attempts on failure")
 }
 
 // main is the entry point of the application.
@@ -465,7 +426,7 @@ func runWatch(cmd *cobra.Command, args []string) {
 	// Make first request immediately
 	makeWatchRequest(url, opts, tracker, history)
 	requestCount++
-	displayWatchStats(tracker, history)
+	displayWatchStats(tracker, history, url, headers)
 
 	// Channel to signal when to stop
 	done := make(chan bool)
@@ -477,7 +438,7 @@ func runWatch(cmd *cobra.Command, args []string) {
 			case <-ticker.C:
 				makeWatchRequest(url, opts, tracker, history)
 				requestCount++
-				displayWatchStats(tracker, history)
+				displayWatchStats(tracker, history, url, headers)
 
 				// Stop if we've reached the count limit
 				if watchCount > 0 && requestCount >= watchCount {
@@ -600,10 +561,14 @@ func displayWatchSummary(url string, tracker *stats.Tracker, history *stats.Hist
 }
 
 // displayWatchStats displays current statistics and recent history.
-func displayWatchStats(tracker *stats.Tracker, history *stats.History) {
+func displayWatchStats(tracker *stats.Tracker, history *stats.History, url string, headers map[string]string) {
 	// Clear previous output (move cursor up)
 	// We'll implement this simply for now
 	fmt.Print("\033[H\033[2J") // Clear screen
+
+	if verbose {
+		printRequestDetails(url, headers)
+	}
 
 	// Display stats header
 	fmt.Printf("\n📈 Live Stats (%d requests)\n", tracker.Total)
@@ -1341,6 +1306,7 @@ func runTrace(cmd *cobra.Command, args []string) {
 		Method:  strings.ToUpper(method),
 		Timeout: timeout,
 		Headers: headers,
+		Retries: retries,
 	}
 
 	// Execute trace
