@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -17,6 +18,9 @@ import (
 
 func TestPingHTTPStatus(t *testing.T) {
 	binary := filepath.Join(t.TempDir(), "tapr")
+	if runtime.GOOS == "windows" {
+		binary += ".exe"
+	}
 	if output, err := exec.Command("go", "build", "-o", binary, ".").CombinedOutput(); err != nil {
 		t.Fatalf("build tapr: %v\n%s", err, output)
 	}
@@ -117,5 +121,18 @@ func TestBatchAllowsExpectedErrorStatus(t *testing.T) {
 	}, time.Second)
 	if !result.Success {
 		t.Fatalf("expected 404 should remain successful in batch mode: %+v", result)
+	}
+}
+
+func TestBoxLine(t *testing.T) {
+	for _, tc := range []struct{ input, want string }{
+		{"x", "x  "},
+		{"abc", "abc"},
+		{"over width", "over width"},
+		{"é", "é  "},
+	} {
+		if got := boxLine(tc.input, 3); got != tc.want {
+			t.Errorf("boxLine(%q, 3) = %q, want %q", tc.input, got, tc.want)
+		}
 	}
 }
