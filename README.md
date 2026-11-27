@@ -379,6 +379,20 @@ tapr https://api.example.com --timeout 30s --retries 3
 tapr https://api.example.com/missing --expect 404
 ```
 
+Use `-d` or `--data` to send a request body with a single check. A value starting
+with `@` reads the body from that file, preserving its contents. Select the HTTP
+method with `-X`; the default is still `GET`.
+
+Valid JSON gets `Content-Type: application/json` automatically. A Content-Type
+provided through `-H` or `--headers` takes precedence. The complete body is sent
+again on each retry.
+
+```bash
+tapr https://api.example.com/users -X POST -d '{"name":"John"}'
+tapr https://api.example.com/users/1 -X PUT --data @user.json
+tapr https://api.example.com/messages -X POST -d 'hello' -H 'Content-Type: text/plain'
+```
+
 ---
 
 #### `tapr watch [URL]`
